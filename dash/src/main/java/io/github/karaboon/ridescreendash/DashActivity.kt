@@ -4,12 +4,16 @@ package io.github.karaboon.ridescreendash
 
 import android.Manifest
 import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
@@ -31,25 +35,34 @@ import com.google.zxing.qrcode.QRCodeWriter
 /**
  * Full-screen virtual dash: Android Auto video from the RideScreen phone app, touch sent back, and —
  * while not linked — the pairing QR the phone scans (like a bike's MotoPlay QR screen).
+ *
+ * Wi‑Fi modes ([WifiMode]), switchable with the mode button and remembered:
+ *  - DIRECT (default): a Wi‑Fi Direct group with a fixed name/password ([DashP2p]) — scan once,
+ *    then RideScreen reconnects by itself.
+ *  - HOTSPOT: a LocalOnlyHotspot ([DashHotspot]) — new name/password every start, rescan each time.
+ *  - PHONE: this device joins the phone's hotspot; RideScreen finds us by subnet scan / mDNS.
  */
 class DashActivity : Activity() {
+
+    enum class WifiMode { DIRECT, HOTSPOT, PHONE }
 
     private lateinit var video: SurfaceView
     private lateinit var overlay: LinearLayout
     private lateinit var qrView: ImageView
     private lateinit var statusView: TextView
     private lateinit var modeButton: Button
+    private lateinit var bootButton: Button
     private lateinit var logView: TextView
 
     private lateinit var link: DashLink
     private lateinit var hotspot: DashHotspot
+    private lateinit var p2p: DashP2p
 
     private val playerLock = Any()
     private var player: H264Player? = null
     @Volatile private var surface: Surface? = null
 
-    /** True = the dash hosts its own Wi‑Fi (LocalOnlyHotspot); false = it joined the phone's hotspot. */
-    private var ownHotspot = true
+    private var mode = WifiMode.DIRECT
     private var wantW = 0
     private var wantH = 0
 
@@ -61,77 +74,114 @@ class DashActivity : Activity() {
         buildUi()
         computeCanvas()
         hotspot = DashHotspot(this, ::log)
+        p2p = DashP2p(this, ::log)
         link = DashLink(applicationContext, wantW, wantH, ::log, linkListener)
         link.start()
         log("[DASH] canvas ${wantW}x$wantH · Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MODEL}")
-        startOwnHotspot()
+        mode = runCatching { WifiMode.valueOf(prefs().getString(KEY_MODE, null) ?: "") }.getOrDefault(WifiMode.DIRECT)
+        startWifi()
     }
 
     override fun onResume() {
         super.onResume()
         hideSystemBars()
+        refreshBootButton()
     }
 
     override fun onDestroy() {
         link.stop()
         hotspot.stop()
+        p2p.stop()
         releasePlayer()
         super.onDestroy()
     }
 
     // ---- Wi‑Fi + QR ----
 
+    private fun prefs() = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
     private fun wifiPermission(): String =
         if (Build.VERSION.SDK_INT >= 33) Manifest.permission.NEARBY_WIFI_DEVICES
         else Manifest.permission.ACCESS_FINE_LOCATION
 
-    private fun startOwnHotspot() {
-        ownHotspot = true
-        modeButton.setText(R.string.btn_phone_hotspot)
+    private fun nextMode() {
+        hotspot.stop()
+        p2p.stop()
+        mode = WifiMode.values()[(mode.ordinal + 1) % WifiMode.values().size]
+        prefs().edit().putString(KEY_MODE, mode.name).apply()
+        startWifi()
+    }
+
+    private fun startWifi() {
+        modeButton.text = getString(R.string.btn_mode, getString(modeLabel(mode)))
+        qrView.setImageDrawable(null)
+        if (mode == WifiMode.PHONE) return usePhoneHotspot()
         if (checkSelfPermission(wifiPermission()) != PackageManager.PERMISSION_GRANTED) {
             statusView.setText(R.string.perm_needed)
             requestPermissions(arrayOf(wifiPermission()), REQ_PERM)
             return
         }
         statusView.setText(R.string.status_starting)
-        qrView.setImageDrawable(null)
-        hotspot.start(
-            onReady = { ssid, pwd ->
-                if (!ownHotspot) return@start
-                showQr(
-                    "http://www.carbit.com.cn/downsdk/657/658/_sdk?modelid=$MODEL_ID&sn=VD01&action=1" +
-                        "&ssid=${Uri.encode(ssid)}&pwd=${Uri.encode(pwd)}&auth=wpa2-psk&name=${Uri.encode(ssid)}",
-                )
-                statusView.text = getString(R.string.status_scan) + "\nWi‑Fi: $ssid"
-            },
-            onFailed = { why ->
-                if (!ownHotspot) return@start
-                log("[WIFI] own hotspot unavailable: $why")
-                statusView.text = getString(R.string.status_hotspot_failed, why)
+        val started = mode
+        val onReady = { ssid: String, pwd: String ->
+            if (mode == started) showWifiQr(ssid, pwd)
+        }
+        val onFailed = { why: String ->
+            if (mode == started) {
+                log("[WIFI] ${mode.name} unavailable: $why")
+                statusView.text = getString(R.string.status_wifi_failed, why)
                 qrView.setImageDrawable(null)
-            },
+            }
+        }
+        when (mode) {
+            WifiMode.DIRECT -> p2p.start(onReady, onFailed)
+            WifiMode.HOTSPOT -> hotspot.start(onReady, onFailed)
+            WifiMode.PHONE -> Unit
+        }
+    }
+
+    /** QR with our Wi‑Fi (Carbit SoftAP style, action=1) + a note on whether RideScreen can auto-connect. */
+    private fun showWifiQr(ssid: String, pwd: String) {
+        showQr(
+            "http://www.carbit.com.cn/downsdk/657/658/_sdk?modelid=$MODEL_ID&sn=VD01&action=1" +
+                "&ssid=${Uri.encode(ssid)}&pwd=${Uri.encode(pwd)}&auth=wpa2-psk&name=${Uri.encode(ssid)}",
         )
+        val p = prefs()
+        val known = p.getString(KEY_SSID, null)
+        val same = known == ssid && p.getString(KEY_PWD, null) == pwd
+        p.edit().putString(KEY_SSID, ssid).putString(KEY_PWD, pwd).apply()
+        val note = when {
+            mode == WifiMode.HOTSPOT -> getString(R.string.note_hotspot_changes)
+            known == null -> getString(R.string.note_first_scan)
+            same -> getString(R.string.note_auto)
+            else -> getString(R.string.note_changed)
+        }
+        if (known != null && !same) log("[WIFI] Wi‑Fi name/password changed since last time — rescan needed")
+        statusView.text = getString(R.string.status_scan) + "\nWi‑Fi: $ssid\n" + note
     }
 
     /**
-     * Fallback for devices that can't host a hotspot: this device joins the PHONE's hotspot as a
-     * normal Wi‑Fi client, and the QR is a Carbit "phone hotspot" one (`action=128`): RideScreen then
-     * scans its hotspot subnet and finds us on :10930 (also advertised over mDNS).
+     * Fallback for devices that can't host Wi‑Fi: this device joins the PHONE's hotspot as a normal
+     * Wi‑Fi client, and the QR is a Carbit "phone hotspot" one (`action=128`): RideScreen then scans
+     * its hotspot subnet and finds us on :10930 (also advertised over mDNS).
      */
     private fun usePhoneHotspot() {
-        ownHotspot = false
-        hotspot.stop()
-        modeButton.setText(R.string.btn_own_hotspot)
         showQr("http://www.carbit.com.cn/downsdk/657/658/_sdk?modelid=$MODEL_ID&sn=VD01&action=128&bm=02:00:00:00:00:01&name=VirtualDash")
         statusView.setText(R.string.status_phone_hotspot)
         log("[WIFI] phone-hotspot mode")
     }
 
+    private fun modeLabel(m: WifiMode) = when (m) {
+        WifiMode.DIRECT -> R.string.mode_direct
+        WifiMode.HOTSPOT -> R.string.mode_hotspot
+        WifiMode.PHONE -> R.string.mode_phone
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode != REQ_PERM) return
-        if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) startOwnHotspot()
-        else statusView.text = getString(R.string.status_hotspot_failed, getString(R.string.perm_needed))
+        if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) startWifi()
+        else statusView.text = getString(R.string.status_wifi_failed, getString(R.string.perm_needed))
     }
 
     private fun showQr(text: String) {
@@ -142,6 +192,42 @@ class DashActivity : Activity() {
             px[y * m.width + x] = if (m.get(x, y)) Color.BLACK else Color.WHITE
         }
         qrView.setImageBitmap(Bitmap.createBitmap(px, m.width, m.height, Bitmap.Config.ARGB_8888))
+    }
+
+    // ---- open at power-on: offer this app as the device's Home screen ----
+
+    /** The HOME entry point is an activity-alias, off until the rider asks for it. */
+    private fun homeAlias() = ComponentName(this, "$packageName.HomeAlias")
+
+    private fun homeEnabled() =
+        packageManager.getComponentEnabledSetting(homeAlias()) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+
+    private fun toggleBoot() {
+        val on = !homeEnabled()
+        packageManager.setComponentEnabledSetting(
+            homeAlias(),
+            if (on) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP,
+        )
+        log(if (on) "[BOOT] Home option on — pick RideScreen จอจำลอง as Home" else "[BOOT] Home option off")
+        refreshBootButton()
+        if (on) {
+            // Let the rider pick us as the default Home app (falls back to app settings if missing).
+            try {
+                startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
+            } catch (_: Exception) {
+                try {
+                    startActivity(Intent(Settings.ACTION_SETTINGS))
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+
+    private fun refreshBootButton() {
+        if (::bootButton.isInitialized) {
+            bootButton.setText(if (homeEnabled()) R.string.btn_boot_off else R.string.btn_boot_on)
+        }
     }
 
     // ---- link → screen ----
@@ -255,7 +341,7 @@ class DashActivity : Activity() {
         overlay = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
-            setBackgroundColor(Color.rgb(16, 22, 18))
+            setBackgroundColor(BG)
             setPadding(32, 32, 32, 32)
         }
         qrView = ImageView(this)
@@ -265,21 +351,35 @@ class DashActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setPadding(40, 0, 0, 0)
         }
+        val title = TextView(this).apply {
+            setText(R.string.app_name)
+            setTextColor(GOLD)
+            textSize = 24f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            val iconPx = (44 * resources.displayMetrics.density).toInt()
+            val icon = getDrawable(R.mipmap.ic_launcher)?.apply { setBounds(0, 0, iconPx, iconPx) }
+            setCompoundDrawablesRelative(icon, null, null, null)
+            compoundDrawablePadding = 16
+            gravity = Gravity.CENTER_VERTICAL
+        }
         statusView = TextView(this).apply {
             setTextColor(Color.WHITE)
-            textSize = 20f
+            textSize = 18f
         }
-        modeButton = Button(this).apply {
-            setOnClickListener { if (ownHotspot) usePhoneHotspot() else startOwnHotspot() }
-        }
+        val buttons = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        modeButton = Button(this).apply { setOnClickListener { nextMode() } }
+        bootButton = Button(this).apply { setOnClickListener { toggleBoot() } }
+        buttons.addView(modeButton)
+        buttons.addView(bootButton, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginStart = 16 })
         logView = TextView(this).apply {
             setTextColor(Color.rgb(150, 170, 155))
             textSize = 11f
             typeface = android.graphics.Typeface.MONOSPACE
         }
-        side.addView(statusView)
-        side.addView(modeButton, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 24 })
-        side.addView(logView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 24 })
+        side.addView(title)
+        side.addView(statusView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 16 })
+        side.addView(buttons, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 20 })
+        side.addView(logView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 20 })
         overlay.addView(side, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
 
         root.addView(overlay, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
@@ -300,7 +400,7 @@ class DashActivity : Activity() {
         Log.i(TAG, msg)
         runOnUiThread {
             logLines.addLast(msg)
-            while (logLines.size > 14) logLines.removeFirst()
+            while (logLines.size > 12) logLines.removeFirst()
             if (::logView.isInitialized) logView.text = logLines.joinToString("\n")
         }
     }
@@ -309,7 +409,13 @@ class DashActivity : Activity() {
         private const val TAG = "RideScreenDash"
         private const val REQ_PERM = 7
         private const val MAX_W = 1280
-        /** CFDL26 family modelId: RideScreen's QR guess for an AP dash with it is the touch landscape profile. */
-        private const val MODEL_ID = "37426"
+        /** Tells RideScreen this is the virtual dash (touch, landscape): BikeProfiles.VIRTUAL_DASH_MODEL_ID. */
+        private const val MODEL_ID = "RSDASH"
+        private const val PREFS = "dash_ui"
+        private const val KEY_MODE = "wifi_mode"
+        private const val KEY_SSID = "last_ssid"
+        private const val KEY_PWD = "last_pwd"
+        private val BG = Color.rgb(0x16, 0x1E, 0x19)
+        private val GOLD = Color.rgb(0xD1, 0xA9, 0x55)
     }
 }

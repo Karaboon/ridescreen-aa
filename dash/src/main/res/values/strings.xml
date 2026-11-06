@@ -3,11 +3,19 @@
     <string name="app_name">RideScreen จอจำลอง</string>
     <string name="status_starting">กำลังเปิด Wi‑Fi ของจอ…</string>
     <string name="status_scan">ในแอป RideScreen บนมือถือ: สแกน QR นี้ แล้วกด Connect</string>
-    <string name="status_hotspot_failed">เปิด Wi‑Fi ของจอเองไม่ได้ (%1$s)\nเปิด hotspot บนมือถือ ให้เครื่องนี้ต่อ Wi‑Fi นั้น แล้วกดปุ่มด้านล่าง</string>
+    <string name="status_wifi_failed">เปิด Wi‑Fi ของจอไม่ได้ (%1$s)\nลองเปลี่ยนโหมดด้วยปุ่มด้านล่าง</string>
     <string name="status_phone_hotspot">โหมด hotspot ของมือถือ: ให้เครื่องนี้ต่อ Wi‑Fi hotspot ของมือถือก่อน แล้วสแกน QR นี้ใน RideScreen</string>
     <string name="status_linking">มือถือเชื่อมต่อแล้ว (%1$s) กำลังเริ่มภาพ…</string>
-    <string name="status_lost">หลุดการเชื่อมต่อ: %1$s\nกด Connect ใน RideScreen อีกครั้ง</string>
-    <string name="btn_phone_hotspot">ใช้ hotspot ของมือถือแทน</string>
-    <string name="btn_own_hotspot">ให้จอเปิด Wi‑Fi เอง</string>
+    <string name="status_lost">หลุดการเชื่อมต่อ: %1$s\nRideScreen จะต่อกลับเอง หรือกด Connect อีกครั้ง</string>
+    <string name="note_first_scan">สแกนครั้งแรกครั้งเดียว ครั้งต่อไป RideScreen จะต่อเอง</string>
+    <string name="note_auto">✓ ชื่อ Wi‑Fi เหมือนเดิม — RideScreen ที่เคยสแกนแล้วจะต่อเอง</string>
+    <string name="note_changed">⚠ ชื่อหรือรหัส Wi‑Fi เปลี่ยน — สแกน QR นี้ใหม่อีกครั้ง</string>
+    <string name="note_hotspot_changes">โหมดนี้ชื่อ Wi‑Fi เปลี่ยนทุกครั้ง ต้องสแกนใหม่ทุกครั้ง</string>
+    <string name="btn_mode">โหมด: %1$s</string>
+    <string name="mode_direct">Wi‑Fi Direct (ต่อเองได้)</string>
+    <string name="mode_hotspot">Hotspot ของจอ</string>
+    <string name="mode_phone">Hotspot ของมือถือ</string>
+    <string name="btn_boot_on">เปิดแอปนี้ตอนเปิดเครื่อง</string>
+    <string name="btn_boot_off">เลิกเปิดตอนเปิดเครื่อง</string>
     <string name="perm_needed">ต้องอนุญาตสิทธิ์ตำแหน่ง/อุปกรณ์ใกล้เคียง เพื่อเปิด Wi‑Fi ของจอ</string>
 </resources>

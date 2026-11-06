@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- RideScreen จอจำลอง: a landscape dash screen with a navigation arrow on a road, on its mount.
+     108×108 adaptive-icon canvas; everything sits inside the 66 dp safe zone (21–87). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Screen glass -->
+    <path
+        android:fillColor="#0F1512"
+        android:pathData="M31,33H77A6,6 0,0 1,83 39V67A6,6 0,0 1,77 73H31A6,6 0,0 1,25 67V39A6,6 0,0 1,31 33Z" />
+
+    <!-- Road: two edges converging to the horizon -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#5E6B60"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M38,70L50,44M70,70L58,44" />
+
+    <!-- Navigation arrow -->
+    <path
+        android:fillColor="#F4EEDF"
+        android:pathData="M54,43L63,64L54,59L45,64Z" />
+
+    <!-- Screen bezel -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D1A955"
+        android:strokeWidth="3.5"
+        android:pathData="M31,33H77A6,6 0,0 1,83 39V67A6,6 0,0 1,77 73H31A6,6 0,0 1,25 67V39A6,6 0,0 1,31 33Z" />
+
+    <!-- Mount: stem + clamp -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#D1A955"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:pathData="M54,74.5V80M45,81H63" />
+</vector>

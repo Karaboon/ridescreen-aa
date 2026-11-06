@@ -190,8 +190,15 @@ object BikeProfiles {
         return LearnedGeometryProfile(base, panel, res)
     }
 
+    /** QR modelId of the RideScreen virtual dash (module :dash) — a touch landscape screen. */
+    const val VIRTUAL_DASH_MODEL_ID = "RSDASH"
+
     private fun selectByQrGuess(qr: QrData?): BikeProfile {
         if (qr == null) return legacy
+        // The virtual dash hosts a Wi‑Fi Direct group (DIRECT-… SSID, fixed so auto-connect works).
+        // Without this, a DIRECT-* SSID would be guessed as the 1000 MT-X portrait dash and Android
+        // Auto would start in portrait and non-touch before CLIENT_INFO could correct it.
+        if (qr.modelId?.trim() == VIRTUAL_DASH_MODEL_ID) return Cfdl26LandscapeProfile
         // Morini SoftAP / Alltrhike family — SSID MLN_* / ML*_ before generic modelId ties.
         if (qr.ssid.startsWith("MLN_", ignoreCase = true) ||
             qr.ssid.startsWith("ML", ignoreCase = true) && qr.modelId in setOf("21333", "00297")
