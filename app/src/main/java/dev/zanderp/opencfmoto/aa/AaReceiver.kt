@@ -40,6 +40,8 @@ class AaReceiver(
         private const val FIRST_DIAL_DELAY_MS = 4_000L
         private const val DIAL_INTERVAL_MS = 2_000L
         private const val DIAL_ATTEMPTS = 20
+        /** Consecutive "connection refused" dials (at ~4, 6, 8 s) that prove the server isn't started. */
+        private const val REFUSED_PROOF_COUNT = 3
         private const val DIAL_TIMEOUT_MS = 800
     }
 
@@ -295,14 +297,25 @@ class AaReceiver(
      * (tap Version 10x, then the overflow menu).
      */
     private fun dialHeadunitServerLoop() {
+        val loopStartedAt = System.currentTimeMillis()
         Thread.sleep(FIRST_DIAL_DELAY_MS)
         var attempt = 0
+        var refusedInARow = 0
         while (running && attempt < DIAL_ATTEMPTS) {
             attempt++
             if (transport != null || sessionStarting) return
             val sock = try {
                 connectLoopback(HEADUNIT_SERVER_PORT)
             } catch (e: Exception) {
+                // ECONNREFUSED on loopback = nothing listening = server not started. Anything else
+                // (timeout, unreachable while bound to the bike) proves nothing, so it resets the run.
+                val refused = e is java.net.ConnectException &&
+                    (e.message ?: "").contains("refused", ignoreCase = true)
+                refusedInARow = if (refused) refusedInARow + 1 else 0
+                if (refusedInARow == REFUSED_PROOF_COUNT) {
+                    AaVideoBridge.husRefused = true
+                    log("[AA] head unit server :$HEADUNIT_SERVER_PORT refused $REFUSED_PROOF_COUNT dials in a row — not started")
+                }
                 if (attempt == 1 || attempt % 5 == 0) {
                     log(
                         "[AA] head unit server :$HEADUNIT_SERVER_PORT no answer " +
@@ -324,7 +337,7 @@ class AaReceiver(
             Thread.sleep(DIAL_INTERVAL_MS)
         }
         if (running && transport == null) {
-            dev.zanderp.opencfmoto.HeadUnitServer.report(false)
+            dev.zanderp.opencfmoto.HeadUnitServer.report(false, loopStartedAt)
             log(
                 "[AA] head unit server never answered on :$HEADUNIT_SERVER_PORT — in Android Auto " +
                     "tap Version 10x, then overflow menu → Start head unit server",

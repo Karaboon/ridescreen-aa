@@ -14,6 +14,7 @@
     <string name="hus_how_title">Iniciar el servidor d\'unitat principal</string>
     <string name="hus_how_steps">1. Obre la configuració d\'Android Auto.\n2. Baixa del tot i toca \"Versió\" 10 vegades (mode desenvolupador).\n3. Toca el menú ⋮ (a dalt a la dreta) → \"Inicia el servidor d\'unitat principal\".\n\nDesprés de reiniciar el mòbil només cal repetir el pas 3.</string>
     <string name="hus_fallback_toast">Obre \"Configuració addicional de l\'app\" o l\'entrada d\'Android Auto a Configuració</string>
+    <string name="hus_auto_open_toast">El servidor d\'unitat principal d\'Android Auto no està en marxa. A Android Auto: ⋮ → Inicia el servidor d\'unitat principal, i torna a Connectar.</string>
     <string name="trip_name_loop">Volta per %1$s</string>
     <string name="trip_name_within">Per %1$s</string>
     <string name="records_line">🏆 Rècords · més llarg %1$s · màx %2$d km/h · millor dia %3$s · ratxa %4$d dies</string>

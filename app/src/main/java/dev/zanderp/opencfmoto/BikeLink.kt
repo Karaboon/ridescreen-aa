@@ -60,6 +60,7 @@ object BikeLink {
         aaLiveDropRetries = 0
         AaVideoBridge.aaSessionSeen = false
         AaVideoBridge.husWedged = false
+        AaVideoBridge.husRefused = false
         // Leave the bike Network held, but unpin the process so AA can use 127.0.0.1.
         appContext?.let { BikeWifi.unbindProcess(context = it) }
     }

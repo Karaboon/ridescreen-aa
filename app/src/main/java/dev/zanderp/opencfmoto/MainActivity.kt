@@ -205,6 +205,17 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             pendingAaQr = null
+            // Head unit server known to be stopped (our last real dial to it failed < 60 s ago and the
+            // rider hasn't been to Android Auto's settings since): connecting would just spin for ~18 s,
+            // so send them straight to Android Auto instead. openSettings() clears that "known stopped",
+            // so the next Connect after coming back goes through normally.
+            HeadUnitServer.probe(this)
+            if (HeadUnitServer.freshKnown == false && HeadUnitServer.androidAutoInstalled(this)) {
+                log("[HUS] head unit server didn't answer on the last try — opening Android Auto settings instead of connecting")
+                ConnectionState.set(Phase.ERROR, getString(R.string.conn_detail_aa_not_started))
+                autoOpenAaSettings("server known stopped")
+                return
+            }
             BikeWatchService.stop(this)
             // Map / Mirror / stale PXC must die first — half-switches leave framesSent=0.
             tearDownForModeSwitch(clearMap = true, clearMirror = true)
@@ -254,6 +265,25 @@ class MainActivity : AppCompatActivity() {
                     log("AA self-mode re-trigger failed: $e")
                 }
             }, 4_500)
+            // Fast give-up (~8 s): on Android Auto 17.4+ the head unit server (:5277) is the only way in,
+            // so if it actively refused 3 dials in a row (AaReceiver, at ~4/6/8 s) it isn't started and
+            // waiting the full 18 s below can't help. Older Android Auto connects IN on :5288 instead and
+            // may still attach late, so it keeps the 18 s path.
+            logView.postDelayed({
+                val p = ConnectionState.phase
+                if (p == Phase.IDLE || p == Phase.STOPPED || p == Phase.ERROR ||
+                    p == Phase.STREAMING || p == Phase.MIRRORING
+                ) return@postDelayed
+                if (AaVideoBridge.aaSessionLive || AaVideoBridge.aaDecoding || AaVideoBridge.aaSessionSeen) return@postDelayed
+                if (!AaVideoBridge.husRefused) return@postDelayed
+                if (!HeadUnitServer.androidAutoAtLeast(this, 17, 4)) {
+                    log("[HUS] :5277 refused, but Android Auto < 17.4 may still connect in — waiting the full 18 s")
+                    return@postDelayed
+                }
+                log("[AA] head unit server not started (refused) — stopping early")
+                ConnectionState.set(Phase.ERROR, getString(R.string.conn_detail_aa_not_started))
+                autoOpenAaSettings("head unit server refused")
+            }, 9_000) // third dial lands at ~8 s after the receiver starts; +1 s for service start-up
             // Give up the silent black/QR reconnect loop — surface a clear error after several tries.
             logView.postDelayed({
                 val p = ConnectionState.phase
@@ -271,6 +301,9 @@ class MainActivity : AppCompatActivity() {
                     getString(R.string.conn_detail_aa_not_started)
                 }
                 ConnectionState.set(Phase.ERROR, detail)
+                // All three causes are fixed in Android Auto's settings (start / restart the head unit
+                // server), so take the rider there instead of leaving them to find the button.
+                autoOpenAaSettings("Android Auto never attached")
             }, 18_000)
             // Kick off the Wi-Fi join right away, in parallel with AA boot.
             joinWifi(qr, gateOnAaSteady = true)
@@ -279,6 +312,24 @@ class MainActivity : AppCompatActivity() {
             CrashGuard.persistSession(this)
             ConnectionState.set(Phase.ERROR, getString(R.string.conn_detail_connect_failed))
         }
+    }
+
+    /**
+     * Opens Android Auto's settings on our own, with a toast saying what to do there. Only while this
+     * screen is in front: Android blocks activity launches from the background, and pulling the rider
+     * out of another app would be rude anyway. Otherwise the card's button is still there.
+     */
+    private fun autoOpenAaSettings(reason: String) {
+        if (isFinishing || isDestroyed ||
+            !lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
+        ) {
+            log("[HUS] not opening Android Auto settings ($reason) — app not in front; shortcut stays on the card")
+            return
+        }
+        if (!HeadUnitServer.androidAutoInstalled(this)) return
+        log("[HUS] auto-opening Android Auto settings ($reason)")
+        Toast.makeText(this, R.string.hus_auto_open_toast, Toast.LENGTH_LONG).show()
+        HeadUnitServer.openSettings(this)
     }
 
     private fun aaAlreadyLiveOrTerminal(): Boolean {
@@ -1337,18 +1388,31 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkHeadUnitServer() {
         val banner = findViewById<View?>(R.id.hus_banner) ?: return
-        if (!HeadUnitServer.androidAutoInstalled(this)) return
+        // The "Open Android Auto" shortcut is always on screen; only the warning text comes and goes.
+        // Without Android Auto installed the shortcut has nowhere to go, so the card hides.
+        if (!HeadUnitServer.androidAutoInstalled(this)) {
+            banner.visibility = View.GONE
+            return
+        }
+        banner.visibility = View.VISIBLE
+        findViewById<View>(R.id.hus_open).setOnClickListener { HeadUnitServer.openSettings(this) }
+        findViewById<View>(R.id.hus_how).setOnClickListener { HeadUnitServer.showHowTo(this) }
         Thread({
             val running = HeadUnitServer.probe(this)
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 // Only warn on a definite "no"; while connected we can't look (and it's clearly running).
                 val aaError = ConnectionState.phase == Phase.ERROR && isHusConnectNoise(ConnectionState.detail)
-                banner.visibility = if (running == false || aaError) View.VISIBLE else View.GONE
+                showHusWarning(running == false || aaError)
             }
         }, "hus-probe").start()
-        findViewById<View>(R.id.hus_open).setOnClickListener { HeadUnitServer.openSettings(this) }
-        findViewById<View>(R.id.hus_how).setOnClickListener { HeadUnitServer.showHowTo(this) }
+    }
+
+    /** Shows/hides the head-unit-server warning inside the always-visible Android Auto card. */
+    private fun showHusWarning(on: Boolean) {
+        findViewById<View?>(R.id.hus_warning)?.visibility = if (on) View.VISIBLE else View.GONE
+        findViewById<com.google.android.material.card.MaterialCardView?>(R.id.hus_banner)?.strokeColor =
+            ContextCompat.getColor(this, if (on) R.color.status_busy else R.color.outline)
     }
 
     private val todayTicker = object : Runnable {
@@ -1848,13 +1912,9 @@ class MainActivity : AppCompatActivity() {
                 ConnectionState.detail == getString(R.string.conn_detail_aa_dropped) ||
                 ConnectionState.detail == getString(R.string.conn_detail_hus_wedged) ||
                 isHusConnectNoise(ConnectionState.detail))
-        findViewById<View?>(R.id.hus_banner)?.let { banner ->
-            if (aaFailed) {
-                banner.visibility = View.VISIBLE
-                findViewById<View>(R.id.hus_open).setOnClickListener { HeadUnitServer.openSettings(this) }
-                findViewById<View>(R.id.hus_how).setOnClickListener { HeadUnitServer.showHowTo(this) }
-            } else if (sessionAlive(phase)) banner.visibility = View.GONE
-        }
+        // The card itself stays visible (see checkHeadUnitServer); only its warning follows the state.
+        if (aaFailed) showHusWarning(true)
+        else if (sessionAlive(phase)) showHusWarning(false)
     }
 
     private val cancelLockRestore = Runnable { applyCancelLockLook() }

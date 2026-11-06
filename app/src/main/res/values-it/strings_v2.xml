@@ -14,6 +14,7 @@
     <string name="hus_how_title">Avvia il server dell\'unità principale</string>
     <string name="hus_how_steps">1. Apri le impostazioni di Android Auto.\n2. Scorri fino in fondo e tocca \"Versione\" 10 volte (modalità sviluppatore).\n3. Tocca il menu ⋮ (in alto a destra) → \"Avvia server unità principale\".\n\nDopo aver riavviato il telefono basta ripetere il passo 3.</string>
     <string name="hus_fallback_toast">Apri \"Impostazioni aggiuntive nell\'app\" o la voce Android Auto nelle Impostazioni</string>
+    <string name="hus_auto_open_toast">Il server dell\'unità principale di Android Auto non è attivo. In Android Auto: ⋮ → Avvia server unità principale, poi torna qui e tocca Collega.</string>
     <string name="trip_name_loop">Giro da %1$s</string>
     <string name="trip_name_within">Dintorni di %1$s</string>
     <string name="records_line">🏆 Record · più lungo %1$s · max %2$d km/h · giorno migliore %3$s · serie %4$d giorni</string>

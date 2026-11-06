@@ -47,8 +47,16 @@ object HeadUnitServer {
         return lastKnown
     }
 
-    /** Called by AaReceiver after each real dial to :5277 (true = it answered). */
-    fun report(ok: Boolean) {
+    /** When the rider was last sent to Android Auto's settings (by us). */
+    @Volatile private var settingsOpenedAt = 0L
+
+    /**
+     * Called by AaReceiver after each real dial to :5277 (true = it answered). [dialStartedAt] is when
+     * that dial loop began: a "no" from a loop that started before we sent the rider to Android Auto's
+     * settings is stale (they may have just started the server) and is dropped.
+     */
+    fun report(ok: Boolean, dialStartedAt: Long = System.currentTimeMillis()) {
+        if (!ok && dialStartedAt < settingsOpenedAt) return
         lastKnown = ok
         lastProbeAt = System.currentTimeMillis()
     }
@@ -74,6 +82,23 @@ object HeadUnitServer {
         return null
     }
 
+    /**
+     * Is the installed Android Auto at least [major].[minor]? (versionName looks like
+     * "17.4.652434-release".) false when it isn't installed or the name doesn't parse, so callers
+     * fall back to the cautious path.
+     */
+    fun androidAutoAtLeast(ctx: android.content.Context, major: Int, minor: Int): Boolean = try {
+        @Suppress("DEPRECATION")
+        val name = ctx.packageManager.getPackageInfo(GEARHEAD, 0).versionName.orEmpty()
+        val m = Regex("^(\\d+)\\.(\\d+)").find(name)
+        if (m == null) false else {
+            val (maj, min) = m.destructured
+            maj.toInt() > major || (maj.toInt() == major && min.toInt() >= minor)
+        }
+    } catch (_: Exception) {
+        false
+    }
+
     fun androidAutoInstalled(activity: Activity): Boolean = try {
         activity.packageManager.getPackageInfo(GEARHEAD, 0)
         true
@@ -83,6 +108,11 @@ object HeadUnitServer {
 
     /** Best effort to land on Android Auto's settings; logs which way worked on this phone. */
     fun openSettings(activity: Activity) {
+        // The rider is going to (re)start the server now: forget "known stopped" so their next
+        // Connect isn't bounced straight back here by MainActivity.startAaFlow().
+        lastKnown = null
+        lastProbeAt = 0L
+        settingsOpenedAt = System.currentTimeMillis()
         val pm = activity.packageManager
         val candidates = ArrayList<Pair<String, Intent>>()
         candidates += "app-preferences" to Intent(Intent.ACTION_APPLICATION_PREFERENCES).setPackage(GEARHEAD)

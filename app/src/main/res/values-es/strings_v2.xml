@@ -14,6 +14,7 @@
     <string name="hus_how_title">Iniciar el servidor de unidad principal</string>
     <string name="hus_how_steps">1. Abre los ajustes de Android Auto.\n2. Baja del todo y toca \"Versión\" 10 veces (modo desarrollador).\n3. Toca el menú ⋮ (arriba a la derecha) → \"Iniciar servidor de unidad principal\".\n\nDespués de reiniciar el móvil solo hay que repetir el paso 3.</string>
     <string name="hus_fallback_toast">Abre \"Ajustes adicionales de la app\" o la entrada de Android Auto en Ajustes</string>
+    <string name="hus_auto_open_toast">El servidor de unidad principal de Android Auto no está en marcha. En Android Auto: ⋮ → Iniciar servidor de unidad principal, y vuelve a Conectar.</string>
     <string name="trip_name_loop">Vuelta por %1$s</string>
     <string name="trip_name_within">Por %1$s</string>
     <string name="records_line">🏆 Récords · más largo %1$s · máx %2$d km/h · mejor día %3$s · racha %4$d días</string>

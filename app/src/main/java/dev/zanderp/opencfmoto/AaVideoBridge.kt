@@ -28,6 +28,13 @@ object AaVideoBridge {
      */
     @Volatile var husWedged: Boolean = false
 
+    /**
+     * Android Auto's head unit server (:5277) actively REFUSED several dials in a row this Connect:
+     * nothing is listening there, i.e. the server isn't started. Lets MainActivity give up at ~8 s
+     * on AA 17.4+ instead of waiting the full 18 s. Timeouts / unreachable don't count (not proof).
+     */
+    @Volatile var husRefused: Boolean = false
+
     /** True once we have decoded at least one AA video fps sample this session. */
     @Volatile var aaDecoding: Boolean = false
 

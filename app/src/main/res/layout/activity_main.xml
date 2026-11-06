@@ -369,41 +369,49 @@
                         android:textSize="14sp" />
                 </LinearLayout>
 
-                <!-- Android Auto's head unit server isn't running (RideScreen AA v2). -->
+                <!-- Shortcut to Android Auto's settings: always shown (when AA is installed). The warning
+                     part (hus_warning) only appears when the head unit server isn't running / AA failed;
+                     MainActivity.showHusWarning() toggles it and the card's stroke colour. -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/hus_banner"
                     style="@style/Card.OpenCfMoto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:visibility="gone"
-                    app:strokeColor="@color/status_busy">
+                    android:layout_marginTop="12dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <TextView
+                        <LinearLayout
+                            android:id="@+id/hus_warning"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/hus_title"
-                            android:textColor="@color/status_busy"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+                            android:layout_marginBottom="10dp"
+                            android:orientation="vertical"
+                            android:visibility="gone">
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/hus_body"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/hus_title"
+                                android:textColor="@color/status_busy"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="@string/hus_body"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp" />
+                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
                             android:orientation="horizontal">
 
                             <com.google.android.material.button.MaterialButton

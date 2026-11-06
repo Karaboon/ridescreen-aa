@@ -14,6 +14,7 @@
     <string name="hus_how_title">Start the head unit server</string>
     <string name="hus_how_steps">1. Open Android Auto\'s settings.\n2. Scroll to the bottom and tap \"Version\" 10 times (developer mode).\n3. Tap the ⋮ menu (top right) → \"Start head unit server\".\n\nYou only redo step 3 after restarting the phone.</string>
     <string name="hus_fallback_toast">Open \"Additional settings in the app\" or the Android Auto entry in Settings</string>
+    <string name="hus_auto_open_toast">Android Auto\'s head unit server isn\'t running. In Android Auto: ⋮ → Start head unit server, then come back and tap Connect.</string>
     <string name="trip_name_loop">Loop via %1$s</string>
     <string name="trip_name_within">Around %1$s</string>
     <string name="records_line">🏆 Records · longest %1$s · top %2$d km/h · best day %3$s · streak %4$d days</string>
