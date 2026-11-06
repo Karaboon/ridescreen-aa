@@ -25,4 +25,7 @@ dependencyResolutionManagement {
 rootProject.name = "Open CfMoto"
 include(":app")
 include(":wear")
+// Virtual dash: an old Android phone/tablet that plays the bike's EasyConn/PXC side, so RideScreen
+// can project Android Auto onto it (and be tested without a bike). Own app, own applicationId.
+include(":dash")
  
