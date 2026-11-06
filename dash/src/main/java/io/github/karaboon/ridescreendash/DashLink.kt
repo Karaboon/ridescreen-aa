@@ -75,7 +75,7 @@ class DashLink(
     @Volatile var canvasH = 0
         private set
 
-    private val huid = "VDASH" + (100000 + (Math.random() * 899999).toInt())
+    private val huid = "VDASH" + DashIdentity.id(context)
 
     fun start() {
         if (running) return
@@ -399,7 +399,7 @@ class DashLink(
      */
     private fun clientInfo(): String = JSONObject().apply {
         put("HUID", huid)
-        put("HUName", "VirtualDash-${huid.takeLast(4)}")
+        put("HUName", "VirtualDash-${huid.removePrefix("VDASH")}")
         put("channel", "37426")
         put("flavor", 65540)
         put("sdkVersion", "1.1.2")
@@ -439,7 +439,7 @@ class DashLink(
         try {
             val mgr = context.getSystemService(Context.NSD_SERVICE) as? NsdManager ?: return
             val info = NsdServiceInfo().apply {
-                serviceName = "VirtualDash-${huid.takeLast(4)}"
+                serviceName = "VirtualDash-${huid.removePrefix("VDASH")}"
                 serviceType = "_EasyConn._tcp"
                 port = Pxc.PORT_PROBE
                 setAttribute("huid", huid)

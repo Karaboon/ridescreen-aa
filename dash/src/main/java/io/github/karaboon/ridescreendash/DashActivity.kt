@@ -143,8 +143,8 @@ class DashActivity : Activity() {
     /** QR with our Wi‑Fi (Carbit SoftAP style, action=1) + a note on whether RideScreen can auto-connect. */
     private fun showWifiQr(ssid: String, pwd: String) {
         showQr(
-            "http://www.carbit.com.cn/downsdk/657/658/_sdk?modelid=$MODEL_ID&sn=VD01&action=1" +
-                "&ssid=${Uri.encode(ssid)}&pwd=${Uri.encode(pwd)}&auth=wpa2-psk&name=${Uri.encode(ssid)}",
+            "http://www.carbit.com.cn/downsdk/657/658/_sdk?modelid=$MODEL_ID&sn=${DashIdentity.id(this)}&action=1" +
+                "&ssid=${Uri.encode(ssid)}&pwd=${Uri.encode(pwd)}&auth=wpa2-psk&name=${Uri.encode(DashIdentity.displayName(this))}",
         )
         val p = prefs()
         val known = p.getString(KEY_SSID, null)
@@ -166,7 +166,7 @@ class DashActivity : Activity() {
      * its hotspot subnet and finds us on :10930 (also advertised over mDNS).
      */
     private fun usePhoneHotspot() {
-        showQr("http://www.carbit.com.cn/downsdk/657/658/_sdk?modelid=$MODEL_ID&sn=VD01&action=128&bm=02:00:00:00:00:01&name=VirtualDash")
+        showQr("http://www.carbit.com.cn/downsdk/657/658/_sdk?modelid=$MODEL_ID&sn=${DashIdentity.id(this)}&action=128&bm=02:00:00:00:00:01&name=${Uri.encode(DashIdentity.displayName(this))}")
         statusView.setText(R.string.status_phone_hotspot)
         log("[WIFI] phone-hotspot mode")
     }

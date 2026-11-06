@@ -57,20 +57,20 @@ object AppSettings {
     fun setLogTrips(ctx: Context, on: Boolean) =
         prefs(ctx).edit().putBoolean(KEY_LOG_TRIPS, on).apply()
 
-    fun forceNonTouch(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_FORCE_NON_TOUCH, false)
+    // Touchscreen overrides are per screen (RideScreen AA): a touch dash and a button-only bike in the
+    // same garage need opposite answers. Scoped via [BikeScope], falling back to the old global value.
+    fun forceNonTouch(ctx: Context): Boolean = BikeScope.getBoolean(prefs(ctx), ctx, KEY_FORCE_NON_TOUCH, false)
     fun setForceNonTouch(ctx: Context, on: Boolean) {
-        val e = prefs(ctx).edit().putBoolean(KEY_FORCE_NON_TOUCH, on)
-        if (on) e.putBoolean(KEY_FORCE_TOUCH, false)
-        e.apply()
+        BikeScope.putBoolean(prefs(ctx), ctx, KEY_FORCE_NON_TOUCH, on)
+        if (on) BikeScope.putBoolean(prefs(ctx), ctx, KEY_FORCE_TOUCH, false)
         BikeProfileHolder.forceNonTouch = on
         if (on) BikeProfileHolder.forceTouch = false
     }
 
-    fun forceTouch(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_FORCE_TOUCH, false)
+    fun forceTouch(ctx: Context): Boolean = BikeScope.getBoolean(prefs(ctx), ctx, KEY_FORCE_TOUCH, false)
     fun setForceTouch(ctx: Context, on: Boolean) {
-        val e = prefs(ctx).edit().putBoolean(KEY_FORCE_TOUCH, on)
-        if (on) e.putBoolean(KEY_FORCE_NON_TOUCH, false)
-        e.apply()
+        BikeScope.putBoolean(prefs(ctx), ctx, KEY_FORCE_TOUCH, on)
+        if (on) BikeScope.putBoolean(prefs(ctx), ctx, KEY_FORCE_NON_TOUCH, false)
         BikeProfileHolder.forceTouch = on
         if (on) BikeProfileHolder.forceNonTouch = false
     }

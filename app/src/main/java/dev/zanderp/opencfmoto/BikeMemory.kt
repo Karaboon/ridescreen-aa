@@ -63,22 +63,39 @@ object BikeMemory {
     /** Persist (or move-to-front) the QR we just connected with, and select it. Keeps any custom
      *  name/photo the rider already gave this bike. */
     fun save(ctx: Context, raw: String, qr: QrData) {
-        val prior = devices(ctx).firstOrNull { it.raw == raw }
+        // A virtual dash whose Wi‑Fi password changed (Android 8–9 may pick a new one) is still the
+        // same screen: replace its old entry instead of adding a second one (same device id).
+        val deviceId = virtualDashId(qr)
+        fun same(b: SavedBike) = b.raw == raw || (deviceId != null && b.qr?.let(::virtualDashId) == deviceId)
+        val prior = devices(ctx).firstOrNull(::same)
         val name = prior?.name ?: displayName(qr)
-        val existing = devices(ctx).filter { it.raw != raw }
+        val existing = devices(ctx).filterNot(::same)
         val list = buildList {
             add(SavedBike(raw, name, prior?.photoPath))
             addAll(existing)
         }
         writeList(ctx, list)
         prefs(ctx).edit().putString(KEY_SELECTED, raw).apply()
+        // Load this screen's own settings (margins, touch overrides…) now that it is selected.
+        AppSettings.applyToHolder(ctx)
     }
 
     fun select(ctx: Context, raw: String) {
         prefs(ctx).edit().putString(KEY_SELECTED, raw).apply()
+        AppSettings.applyToHolder(ctx)
         try { ParkingWidget.updateAll(ctx) } catch (_: Exception) {}
         try { WearBikePhoto.push(ctx) } catch (_: Exception) {}
     }
+
+    /**
+     * Stable id of a RideScreen virtual dash (module :dash): its QR carries modelid RSDASH and the
+     * device's own id in `sn`. Null for real bikes, whose `sn` is a random nonce per QR.
+     */
+    fun virtualDashId(qr: QrData): String? =
+        qr.sn?.trim()?.takeIf {
+            qr.modelId?.trim() == BikeProfiles.VIRTUAL_DASH_MODEL_ID &&
+                it.length in 4..32 && it.all(Char::isLetterOrDigit) // it ends up in preference keys
+        }
 
     /** Give a bike a new display name (blank keeps the current one). */
     fun rename(ctx: Context, raw: String, newName: String) {

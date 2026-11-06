@@ -19,7 +19,7 @@ import java.security.SecureRandom
  * the same, so the RideScreen app that scanned our QR once finds us again on its own: auto-connect
  * on launch, "wait for the bike", Bluetooth trigger.
  *
- *  - Android 10+: we choose the name ([NETWORK_NAME]) and a password generated once and kept.
+ *  - Android 10+: we choose the name ([DashIdentity.networkName], unique per device) and a password generated once and kept.
  *  - Android 8–9: Android picks both; it normally reuses its persistent group, so they rarely
  *    change. [DashActivity] notices when they do and asks for one rescan.
  *
@@ -70,7 +70,7 @@ class DashP2p(private val context: Context, private val log: (String) -> Unit) {
         }
         if (Build.VERSION.SDK_INT >= 29) {
             val cfg = WifiP2pConfig.Builder()
-                .setNetworkName(NETWORK_NAME)
+                .setNetworkName(DashIdentity.networkName(context))
                 .setPassphrase(passphrase())
                 // 2.4 GHz: every phone can join it, and it reaches further on a bike.
                 .setGroupOperatingBand(WifiP2pConfig.GROUP_OWNER_BAND_2GHZ)
@@ -135,8 +135,6 @@ class DashP2p(private val context: Context, private val log: (String) -> Unit) {
     }
 
     companion object {
-        /** Must match DIRECT-xy… (Android's rule for Wi‑Fi Direct group names). */
-        const val NETWORK_NAME = "DIRECT-RS-RideScreenDash"
         private const val PREFS = "dash_wifi"
         private const val KEY_PASS = "p2p_pass"
     }

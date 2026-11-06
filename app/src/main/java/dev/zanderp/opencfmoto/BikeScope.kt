@@ -23,7 +23,13 @@ object BikeScope {
     fun suffix(ctx: Context): String? =
         BikeMemory.selected(ctx)?.raw?.let { idFor(it) }
 
-    fun idFor(raw: String): String = "b" + Integer.toHexString(raw.hashCode())
+    /**
+     * Real bikes: a hash of the scanned QR. A RideScreen virtual dash: its device id, so its settings
+     * survive a Wi‑Fi password change (a new QR text) — see [BikeMemory.virtualDashId].
+     */
+    fun idFor(raw: String): String =
+        QrData.parse(raw)?.let(BikeMemory::virtualDashId)?.let { "v$it" }
+            ?: ("b" + Integer.toHexString(raw.hashCode()))
 
     fun getString(p: SharedPreferences, ctx: Context, base: String, def: String?): String? {
         suffix(ctx)?.let { val k = "$base#$it"; if (p.contains(k)) return p.getString(k, def) }

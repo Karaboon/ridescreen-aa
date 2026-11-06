@@ -33,18 +33,24 @@ object ScreenMargins {
 
     val any: Boolean get() = top != 0 || bottom != 0 || left != 0 || right != 0
 
+    /**
+     * Per screen (RideScreen AA): every key is scoped to the selected garage bike/dash via [BikeScope],
+     * falling back to the old global values until that screen gets its own. Call again whenever the
+     * selected bike changes ([BikeMemory.select] does, through [AppSettings.applyToHolder]).
+     */
     fun load(context: Context) {
         val p = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+        fun has(k: String) = p.contains(k) || BikeScope.suffix(context)?.let { p.contains("$k#$it") } == true
         customised = wasCustomised(
-            hasFlag = p.contains("customised"),
-            flag = p.getBoolean("customised", false),
-            hasEdgeKeys = p.contains("top") || p.contains("bottom") ||
-                p.contains("left") || p.contains("right"),
+            hasFlag = has("customised"),
+            flag = BikeScope.getBoolean(p, context, "customised", false),
+            hasEdgeKeys = has("top") || has("bottom") || has("left") || has("right"),
         )
-        userTop = p.getInt("top", 0)
-        userBottom = p.getInt("bottom", 0)
-        userLeft = p.getInt("left", 0)
-        userRight = p.getInt("right", 0)
+        userTop = BikeScope.getInt(p, context, "top", 0)
+        userBottom = BikeScope.getInt(p, context, "bottom", 0)
+        userLeft = BikeScope.getInt(p, context, "left", 0)
+        userRight = BikeScope.getInt(p, context, "right", 0)
+        AaVideoBridge.pipeline?.refreshScreenMargins()
     }
 
     internal fun wasCustomised(hasFlag: Boolean, flag: Boolean, hasEdgeKeys: Boolean): Boolean =
@@ -56,19 +62,19 @@ object ScreenMargins {
         userLeft = l.coerceIn(0, MAX)
         userRight = r.coerceIn(0, MAX)
         customised = true
-        context.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
-            .putBoolean("customised", true)
-            .putInt("top", userTop).putInt("bottom", userBottom)
-            .putInt("left", userLeft).putInt("right", userRight)
-            .apply()
+        val p = context.getSharedPreferences(PREF, Context.MODE_PRIVATE)
+        BikeScope.putBoolean(p, context, "customised", true)
+        BikeScope.putInt(p, context, "top", userTop)
+        BikeScope.putInt(p, context, "bottom", userBottom)
+        BikeScope.putInt(p, context, "left", userLeft)
+        BikeScope.putInt(p, context, "right", userRight)
         AaVideoBridge.pipeline?.refreshScreenMargins()
     }
 
-    /** Back to the active profile's defaults (not necessarily zero). */
+    /** Back to the active profile's defaults (not necessarily zero), for the selected screen only. */
     fun reset(context: Context) {
         customised = false
-        context.getSharedPreferences(PREF, Context.MODE_PRIVATE).edit()
-            .putBoolean("customised", false).apply()
+        BikeScope.putBoolean(context.getSharedPreferences(PREF, Context.MODE_PRIVATE), context, "customised", false)
         AaVideoBridge.pipeline?.refreshScreenMargins()
     }
 

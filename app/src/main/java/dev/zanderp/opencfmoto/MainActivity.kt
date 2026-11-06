@@ -1249,11 +1249,27 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val inRange = BikeWifi.isSsidInRange(this, saved.ssid)
+        var inRange = BikeWifi.isSsidInRange(this, saved.ssid)
         if (inRange == false) {
-            logAutoConnectSkipOnce("'${BikeMemory.lastBikeName(this)}' not in range — will retry when its Wi-Fi appears")
-            return
+            // RideScreen AA: several screens in the garage (e.g. the bike and a virtual dash) — if
+            // another saved one is in range, switch to it, which also loads its own settings.
+            val other = BikeMemory.devices(this).firstOrNull { b ->
+                val q = b.qr
+                b.raw != BikeMemory.lastRaw(this) && q != null && q.ssid.isNotBlank() &&
+                    !q.ssid.equals(saved.ssid, ignoreCase = true) &&
+                    BikeWifi.isSsidInRange(this, q.ssid, refresh = false) == true
+            }
+            if (other == null) {
+                logAutoConnectSkipOnce("'${BikeMemory.lastBikeName(this)}' not in range — will retry when its Wi-Fi appears")
+                return
+            }
+            log("→ Auto-connect: '${BikeMemory.lastBikeName(this)}' not in range, but '${other.name}' is — switching to it")
+            BikeMemory.select(this, other.raw)
+            refreshBikeLabel()
+            inRange = true
         }
+        // The screen we'll actually connect to (the selected one may have just changed above).
+        val target: QrData = BikeMemory.lastQr(this) ?: return
 
         // Committed to connecting — latch so an activity recreation (Google AA foregrounding) or a
         // later onResume doesn't fire a second attempt. Use the main looper (not the view) so a
@@ -1275,7 +1291,7 @@ class MainActivity : AppCompatActivity() {
                     log("→ Auto-connect: Android Auto service running with no session (left over) — starting a fresh Connect")
                 }
                 if ((!AndroidAutoService.isRunning || AndroidAutoService.isOrphan) && !ConnectionState.phase.busy) {
-                    activity.startAaFlow(saved)
+                    activity.startAaFlow(target)
                 }
             } catch (e: Exception) {
                 LogBus.log("auto-connect failed (app stays open): $e")
