@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-// Virtual dash ("จอจำลอง"): runs on a spare Android 8+ device and speaks the DASH side of the
+// Virtual dash ("จอจำลอง"): runs on a spare Android 6+ device and speaks the DASH side of the
 // Carbit EasyConn / PXC protocol (docs/01-REVERSE-ENGINEERING.md), so the RideScreen AA phone app
 // streams Android Auto to it exactly as it does to a bike. Separate app and applicationId: it is
 // installed on a different device from the phone app and shares no data with it.
@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.karaboon.ridescreendash"
-        minSdk = 26          // Android 8.0: LocalOnlyHotspot
+        minSdk = 23          // Android 6.0. LocalOnlyHotspot (HOTSPOT mode) needs 8.0; DIRECT/PHONE work on 6+
         targetSdk = 36
         versionCode = 1
         versionName = ((project.findProperty("appVersion") as String?) ?: "1") +

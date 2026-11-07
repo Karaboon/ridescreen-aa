@@ -12,7 +12,9 @@ import android.os.Looper
  * The dash's own Wi‑Fi, like a bike's SoftAP: an Android LocalOnlyHotspot (Android 8+). Android picks
  * the name and password itself; we put them in the QR, and the phone joins with them exactly as it
  * joins a bike (QR `action=1`). The hotspot lives as long as [reservation] is held.
+ * Only created on Android 8+ (see DashActivity.hotspot).
  */
+@android.annotation.TargetApi(26)
 class DashHotspot(private val context: Context, private val log: (String) -> Unit) {
     private var reservation: WifiManager.LocalOnlyHotspotReservation? = null
 

@@ -55,7 +55,8 @@ class DashActivity : Activity() {
     private lateinit var logView: TextView
 
     private lateinit var link: DashLink
-    private lateinit var hotspot: DashHotspot
+    /** Null below Android 8: no LocalOnlyHotspot there, so HOTSPOT mode is skipped. */
+    private var hotspot: DashHotspot? = null
     private lateinit var p2p: DashP2p
 
     private val playerLock = Any()
@@ -73,12 +74,13 @@ class DashActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         buildUi()
         computeCanvas()
-        hotspot = DashHotspot(this, ::log)
+        if (Build.VERSION.SDK_INT >= 26) hotspot = DashHotspot(this, ::log)
         p2p = DashP2p(this, ::log)
         link = DashLink(applicationContext, wantW, wantH, ::log, linkListener)
         link.start()
         log("[DASH] canvas ${wantW}x$wantH · Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MODEL}")
         mode = runCatching { WifiMode.valueOf(prefs().getString(KEY_MODE, null) ?: "") }.getOrDefault(WifiMode.DIRECT)
+        if (mode !in availableModes()) mode = WifiMode.DIRECT
         startWifi()
     }
 
@@ -90,7 +92,7 @@ class DashActivity : Activity() {
 
     override fun onDestroy() {
         link.stop()
-        hotspot.stop()
+        hotspot?.stop()
         p2p.stop()
         releasePlayer()
         super.onDestroy()
@@ -105,12 +107,17 @@ class DashActivity : Activity() {
         else Manifest.permission.ACCESS_FINE_LOCATION
 
     private fun nextMode() {
-        hotspot.stop()
+        hotspot?.stop()
         p2p.stop()
-        mode = WifiMode.values()[(mode.ordinal + 1) % WifiMode.values().size]
+        val modes = availableModes()
+        mode = modes[(modes.indexOf(mode) + 1) % modes.size]
         prefs().edit().putString(KEY_MODE, mode.name).apply()
         startWifi()
     }
+
+    /** HOTSPOT needs LocalOnlyHotspot (Android 8+); DIRECT and PHONE work on Android 6+. */
+    private fun availableModes(): List<WifiMode> =
+        WifiMode.values().filter { it != WifiMode.HOTSPOT || hotspot != null }
 
     private fun startWifi() {
         modeButton.text = getString(R.string.btn_mode, getString(modeLabel(mode)))
@@ -135,7 +142,7 @@ class DashActivity : Activity() {
         }
         when (mode) {
             WifiMode.DIRECT -> p2p.start(onReady, onFailed)
-            WifiMode.HOTSPOT -> hotspot.start(onReady, onFailed)
+            WifiMode.HOTSPOT -> hotspot?.start(onReady, onFailed) ?: onFailed("needs Android 8+")
             WifiMode.PHONE -> Unit
         }
     }

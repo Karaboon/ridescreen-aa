@@ -20,7 +20,7 @@ import java.security.SecureRandom
  * on launch, "wait for the bike", Bluetooth trigger.
  *
  *  - Android 10+: we choose the name ([DashIdentity.networkName], unique per device) and a password generated once and kept.
- *  - Android 8–9: Android picks both; it normally reuses its persistent group, so they rarely
+ *  - Android 6–9: Android picks both; it normally reuses its persistent group, so they rarely
  *    change. [DashActivity] notices when they do and asks for one rescan.
  *
  * The phone joins it as an ordinary network (QR `action=1`) and this device is the gateway,
