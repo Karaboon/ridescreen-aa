@@ -76,6 +76,7 @@ class DashActivity : Activity() {
         computeCanvas()
         if (Build.VERSION.SDK_INT >= 26) hotspot = DashHotspot(this, ::log)
         p2p = DashP2p(this, ::log)
+        DashP2p.seedLastSsid(this, prefs().getString(KEY_SSID, null))
         link = DashLink(applicationContext, wantW, wantH, ::log, linkListener)
         link.start()
         log("[DASH] canvas ${wantW}x$wantH · Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MODEL}")
