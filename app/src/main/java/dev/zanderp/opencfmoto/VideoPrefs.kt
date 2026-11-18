@@ -65,7 +65,7 @@ enum class PowerMode(val fps: Int, val label: String, @StringRes val labelRes: I
  * a bike rejects them.
  */
 enum class ResolutionMode(val label: String, @StringRes val labelRes: Int, val spec: AaVideoSpec?) {
-    AUTO("Auto — match your bike (recommended)", R.string.pref_res_auto, null),
+    AUTO("Auto — match your vehicle (recommended)", R.string.pref_res_auto, null),
     LANDSCAPE_SD("Landscape · 800×480", R.string.pref_res_land_sd, AaVideoSpec(AaResolution.LANDSCAPE_800x480, dpi = 160)),
     LANDSCAPE_HD("Landscape · 1280×720 (HD)", R.string.pref_res_land_hd, AaVideoSpec(AaResolution.LANDSCAPE_1280x720, dpi = 160)),
     PORTRAIT_SD("Portrait · 720×1280", R.string.pref_res_port_sd, AaVideoSpec(AaResolution.PORTRAIT_720x1280, dpi = 240)),
@@ -82,7 +82,7 @@ enum class ResolutionMode(val label: String, @StringRes val labelRes: Int, val s
  * - [MANUAL] — use the rider-entered panel W×H.
  */
 enum class MatchAspectMode(val label: String) {
-    AUTO("Auto — from bike screen"),
+    AUTO("Auto — from the dash screen"),
     OFF("Off"),
     MANUAL("Manual size"),
 }

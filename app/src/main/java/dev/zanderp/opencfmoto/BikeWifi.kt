@@ -303,7 +303,7 @@ object BikeWifi {
         val ctx = appContext ?: return
         logCb?.invoke(
             "[WIFI] bike not seen for ${GIVE_UP_AFTER_MS / 60_000} min ($rejoinAttempts tries) — " +
-                "stopping to save battery; tap Connect when you're back on the bike",
+                "stopping to save battery; tap Connect when you're back",
         )
         val hook = onGiveUp
         if (hook != null) {

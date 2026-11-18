@@ -62,11 +62,22 @@ object BikeMemory {
 
     /** Persist (or move-to-front) the QR we just connected with, and select it. Keeps any custom
      *  name/photo the rider already gave this bike. */
+    /**
+     * Whether [b] is the vehicle behind this QR. A virtual dash whose Wi‑Fi name/password changed
+     * (Android 6–9 may pick new ones) is still the same screen (same device id).
+     */
+    private fun isSame(b: SavedBike, raw: String, qr: QrData): Boolean {
+        if (b.raw == raw) return true
+        val deviceId = virtualDashId(qr) ?: return false
+        return b.qr?.let(::virtualDashId) == deviceId
+    }
+
+    /** True when this QR belongs to a vehicle already in the garage (call before [save]). */
+    fun isSaved(ctx: Context, raw: String, qr: QrData): Boolean = devices(ctx).any { isSame(it, raw, qr) }
+
     fun save(ctx: Context, raw: String, qr: QrData) {
-        // A virtual dash whose Wi‑Fi password changed (Android 8–9 may pick a new one) is still the
-        // same screen: replace its old entry instead of adding a second one (same device id).
-        val deviceId = virtualDashId(qr)
-        fun same(b: SavedBike) = b.raw == raw || (deviceId != null && b.qr?.let(::virtualDashId) == deviceId)
+        // Replace the vehicle's old entry instead of adding a second one.
+        fun same(b: SavedBike) = isSame(b, raw, qr)
         val prior = devices(ctx).firstOrNull(::same)
         val name = prior?.name ?: displayName(qr)
         val existing = devices(ctx).filterNot(::same)

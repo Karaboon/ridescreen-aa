@@ -87,7 +87,7 @@ object DependencyPrompt {
                 Issue(
                     id = "wifi",
                     title = "Phone Wi‑Fi is off",
-                    detail = "The bike link uses Wi‑Fi. Turn Wi‑Fi on before Connect.",
+                    detail = "The vehicle link uses Wi‑Fi. Turn Wi‑Fi on before Connect.",
                     required = false,
                     action = Action.ENABLE_WIFI,
                 ),
@@ -153,7 +153,7 @@ object DependencyPrompt {
             emptyList()
         }
         val body = buildString {
-            append("OpenCfMoto needs a few things on this phone before it can talk to your bike:\n")
+            append("OpenCfMoto needs a few things on this phone before it can talk to your vehicle:\n")
             for (issue in required) {
                 append("\n• ").append(issue.title)
                 append("\n  ").append(issue.detail)
@@ -219,7 +219,7 @@ object DependencyPrompt {
 
     private fun permLabel(perm: String): String = when (perm) {
         Manifest.permission.CAMERA -> "Camera (scan QR)"
-        Manifest.permission.ACCESS_FINE_LOCATION -> "Location (join bike Wi‑Fi)"
+        Manifest.permission.ACCESS_FINE_LOCATION -> "Location (join vehicle Wi‑Fi)"
         Manifest.permission.POST_NOTIFICATIONS -> "Notifications"
         Manifest.permission.RECORD_AUDIO -> "Microphone"
         else -> perm.substringAfterLast('.')

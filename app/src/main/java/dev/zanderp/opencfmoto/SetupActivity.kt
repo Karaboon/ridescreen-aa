@@ -275,11 +275,11 @@ class SetupActivity : AppCompatActivity() {
             val profile = ProfilePrefs.get(this).shortLabel
             val send = Intent(Intent.ACTION_SEND).apply {
                 type = "application/json"
-                putExtra(Intent.EXTRA_SUBJECT, "OpenCfMoto bike tuning — $profile")
+                putExtra(Intent.EXTRA_SUBJECT, "OpenCfMoto vehicle tuning — $profile")
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    "OpenCfMoto bike tuning ($profile) — profile / resolution / margins / buttons " +
-                        "(no passwords, no bike name/SSID).\n" +
+                    "OpenCfMoto vehicle tuning ($profile) — profile / resolution / margins / buttons " +
+                        "(no passwords, no vehicle name/SSID).\n" +
                         "Import via Setup → Wi‑Fi & logs → Import…",
                 )
                 putExtra(Intent.EXTRA_STREAM, uri)
@@ -299,11 +299,11 @@ class SetupActivity : AppCompatActivity() {
                 Toast.makeText(this, "Empty file", Toast.LENGTH_SHORT).show()
                 return
             }
-            val onto = BikeMemory.lastBikeName(this) ?: "the selected bike"
+            val onto = BikeMemory.lastBikeName(this) ?: "the selected vehicle"
             AlertDialog.Builder(this)
                 .setTitle("Import settings?")
                 .setMessage(
-                    "Replace bike tuning for $onto — profile, resolution, fit, power, margins, " +
+                    "Replace vehicle tuning for $onto — profile, resolution, fit, power, margins, " +
                         "handlebar buttons, Control AA, non-touch, Wi‑Fi transport?\n\n" +
                         "Personal prefs (map theme, saved places, auto-connect, …) are left alone. " +
                         "Wi‑Fi passwords are never imported."
@@ -454,7 +454,7 @@ class SetupActivity : AppCompatActivity() {
     private fun setKeepWifi(on: Boolean) {
         AppSettings.setKeepWifiAfterDisconnect(this, on)
         refreshOptions()
-        Toast.makeText(this, "Keep bike Wi-Fi ${if (on) "on" else "off"}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Keep vehicle Wi-Fi ${if (on) "on" else "off"}", Toast.LENGTH_SHORT).show()
     }
 
     private fun setClockResync(mode: ClockResyncMode) {
@@ -485,7 +485,7 @@ class SetupActivity : AppCompatActivity() {
     private fun setProfileOverride(ov: ProfileOverride) {
         ProfilePrefs.set(this, ov)
         refreshOptions()
-        toast("Bike profile: ${ov.shortLabel}")
+        toast("Dash profile: ${ov.shortLabel}")
     }
 
     private fun setTransport(t: WifiTransport) {

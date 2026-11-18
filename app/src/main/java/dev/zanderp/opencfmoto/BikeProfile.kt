@@ -847,12 +847,8 @@ internal object KnownDashes {
         "21340" to Dash("Zontes 125X", null, 800 to 416, MatchAspectMode.OFF),
     )
 
-    /** Same setups by the model the rider picked ([BikePicker]) when the QR's modelId is unknown. */
-    private val byPickedKey = mapOf("125x" to byModelId.getValue("21340"), "368" to byModelId.getValue("21334"))
-
-    private fun find(modelId: String?, ctx: Context?): Dash? =
-        modelId?.trim()?.let { byModelId[it] }
-            ?: ctx?.let { c -> BikePicker.selected(c)?.dashKey?.let { byPickedKey[it] } }
+    @Suppress("UNUSED_PARAMETER") // ctx kept for callers; the rider-picked model fallback was removed.
+    private fun find(modelId: String?, ctx: Context?): Dash? = modelId?.trim()?.let { byModelId[it] }
 
     fun panelFor(modelId: String?, ctx: Context? = null): Pair<Int, Int>? = find(modelId, ctx)?.panel
     fun profileFor(modelId: String?): BikeProfile? = find(modelId, null)?.profile?.invoke()

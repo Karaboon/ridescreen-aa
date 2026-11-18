@@ -50,16 +50,16 @@ object ManualWifiPairing {
 
         val ssid = field("Wi‑Fi name (SSID)")
         val pwd = field("Password", password = true)
-        val name = field("Bike name (optional)")
+        val name = field("Vehicle name (optional)")
 
         val dialog = MaterialAlertDialogBuilder(activity)
-            .setTitle("Enter bike Wi‑Fi")
+            .setTitle("Enter vehicle Wi‑Fi")
             .setMessage(
                 "For dashes that show SSID + password instead of a QR (e.g. Benelli TRK). " +
-                    "Use the exact network name from the bike screen.",
+                    "Use the exact network name from the vehicle screen.",
             )
             .setView(col)
-            .setPositiveButton("Add bike", null)
+            .setPositiveButton("Add vehicle", null)
             .setNegativeButton("Cancel", null)
             .create()
         dialog.setOnShowListener {

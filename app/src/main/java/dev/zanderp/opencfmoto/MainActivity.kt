@@ -87,11 +87,13 @@ class MainActivity : AppCompatActivity() {
                 "(ap=${qr.supportsAp}, p2p=${qr.supportsP2p}, hotspot=${qr.supportsPhoneHotspot}) " +
                 "modelId=${qr.modelId} sn=${qr.sn}"
         )
-        // Remember this bike so the next ride is a one-tap reconnect (skips the scan entirely).
+        // Remember this vehicle so the next ride is a one-tap reconnect (skips the scan entirely).
+        val firstScan = !BikeMemory.isSaved(this, raw, qr)
         BikeMemory.save(this, raw, qr)
         refreshBikeLabel()
-        // v2.3: which bike is it? (once per bike; names it and applies known screen setups)
-        BikePicker.maybeAsk(this, raw) { refreshBikeLabel() }
+        // No "which bike is it?" model picker any more: profiles come from the QR / CLIENT_INFO alone.
+        // A new vehicle just gets a name.
+        if (firstScan) promptVehicleName(raw)
 
         if (pendingAaStart) {
             pendingAaStart = false
@@ -110,6 +112,41 @@ class MainActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG,
             ).show()
         }
+    }
+
+    /**
+     * First successful scan of a vehicle: let the rider name it (car, bike, any dash). Prefilled with
+     * the dash's own name / SSID; Skip or a blank name keeps that. Renamable later in the Garage.
+     */
+    private fun promptVehicleName(raw: String) {
+        if (isFinishing || isDestroyed) return
+        val current = BikeMemory.devices(this).firstOrNull { it.raw == raw }?.name.orEmpty()
+        val input = android.widget.EditText(this).apply {
+            setText(current)
+            setSelection(text.length)
+            setHint(R.string.vehicle_name_hint)
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        }
+        val pad = (20 * resources.displayMetrics.density).toInt()
+        val wrap = android.widget.FrameLayout(this).apply {
+            setPadding(pad, pad / 2, pad, 0)
+            addView(input)
+        }
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.vehicle_name_title)
+            .setMessage(R.string.vehicle_name_message)
+            .setView(wrap)
+            .setPositiveButton(R.string.vehicle_name_save) { _, _ ->
+                val name = input.text.toString().trim()
+                if (name.isNotEmpty() && name != current) {
+                    BikeMemory.rename(this, raw, name)
+                    log("[garage] vehicle named \"$name\"")
+                }
+                refreshBikeLabel()
+            }
+            .setNegativeButton(R.string.vehicle_name_skip, null)
+            .show()
     }
 
     /** Pick the bike profile from the QR up front — it drives the Android Auto resolution/orientation,
@@ -800,7 +837,7 @@ class MainActivity : AppCompatActivity() {
                                     "(Match dash rotates the phone so the TFT fills).\n\n" +
                                     "Single app — that app must stay on screen; Android sends no frames " +
                                     "in the background. Prefer GPX / Tracks or Android Auto for pocket use.\n\n" +
-                                    "Bike touch does not drive mirrored apps. Continue connects and " +
+                                    "Dash touch does not drive mirrored apps. Continue connects and " +
                                     "sends OpenCfMoto to the background.",
                             )
                             .setPositiveButton("Continue") { _, _ -> startMirrorLink() }
@@ -1008,7 +1045,7 @@ class MainActivity : AppCompatActivity() {
                 } catch (_: Exception) {}
                 Toast.makeText(
                     this,
-                    "Bike search open — type here. Results appear on the dash.",
+                    "Dash search open — type here. Results appear on the dash.",
                     Toast.LENGTH_LONG,
                 ).show()
             }
@@ -1970,7 +2007,7 @@ class MainActivity : AppCompatActivity() {
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle(R.string.main_rival_title)
             .setMessage(
-                "The official CFMoto/EasyConnect app is running and holding the bike's link ports, so " +
+                "The official CFMoto/EasyConnect app is running and holding the vehicle's link ports, so " +
                     "the dash stays blank. Close it, then reconnect.\n\n" +
                     "\"Close & retry\" tries to stop it for you; if the dash is still blank, use " +
                     "\"App settings\" and tap Force stop."
@@ -1988,7 +2025,7 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton("Dismiss", null)
             .setCancelable(true)
-            .apply { if (!installed) setMessage("Something is holding the bike's link ports (10920-10922). Close any other CFMoto/EasyConnect app and reconnect.") }
+            .apply { if (!installed) setMessage("Something is holding the vehicle's link ports (10920-10922). Close any other CFMoto/EasyConnect app and reconnect.") }
             .show()
     }
 
@@ -1998,9 +2035,9 @@ class MainActivity : AppCompatActivity() {
      */
     private fun promptVpnKillSwitch() {
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("VPN is blocking the bike")
+            .setTitle("VPN is blocking the vehicle")
             .setMessage(
-                "Android Auto reached the phone, but a VPN kill-switch is blocking the bike Wi‑Fi " +
+                "Android Auto reached the phone, but a VPN kill-switch is blocking the vehicle Wi‑Fi " +
                     "(Network.bindSocket → EPERM).\n\n" +
                     "Fix (any one):\n" +
                     "• Turn the VPN off for this ride\n" +

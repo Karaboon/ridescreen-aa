@@ -254,11 +254,11 @@ class AndroidAutoService : Service() {
         if (aaParked) return
         aaParked = true
         LogBus.log("[AA] bike Wi-Fi gone > ${GRACE_MS / 1000}s — parking Android Auto to save battery; watching for the bike")
-        ConnectionState.set(Phase.WAITING_FOR_BIKE, "will resume when the bike is back")
+        ConnectionState.set(Phase.WAITING_FOR_BIKE, "will resume when the vehicle is back")
         tearDownAaKeepService()
         updateNotification(
-            "Waiting for bike",
-            "Projection paused to save battery — resumes when the bike is back",
+            "Waiting for vehicle",
+            "Projection paused to save battery — resumes when the vehicle is back",
         )
     }
 

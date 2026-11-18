@@ -152,7 +152,7 @@ object WifiGate {
             val n = Notification.Builder(app, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
                 .setContentTitle("Turn on Wi‑Fi")
-                .setContentText("OpenCfMoto can’t reach the bike — tap to open Wi‑Fi settings.")
+                .setContentText("OpenCfMoto can’t reach the vehicle — tap to open Wi‑Fi settings.")
                 .setContentIntent(pi)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)

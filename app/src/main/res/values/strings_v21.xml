@@ -7,9 +7,9 @@
     <string name="conn_detail_need_bt_on">Turn on Bluetooth — Android Auto needs it to start on the dash</string>
     <string name="conn_detail_wifi_off">Phone Wi‑Fi is off — turn it on to connect</string>
     <string name="conn_detail_bike_wifi_not_found">Can\'t find the bike\'s Wi‑Fi: switch the bike on and put the dash on its screen mirroring interface (screen 3 on the 125X), then Connect</string>
-    <string name="wifi_picker_hint">If Android asks to connect to %1$s, tap Connect: it\'s your bike\'s Wi‑Fi</string>
+    <string name="wifi_picker_hint">If Android asks to connect to %1$s, tap Connect: it\'s your vehicle\'s Wi‑Fi</string>
     <string name="wifi_off_title">Turn on Wi‑Fi</string>
-    <string name="wifi_off_message">RideScreen AA connects to the bike over Wi‑Fi, and your phone\'s Wi‑Fi is off. Turn it on (you don\'t need to join any network) and Connect carries on by itself.</string>
+    <string name="wifi_off_message">RideScreen AA connects to the vehicle over Wi‑Fi, and your phone\'s Wi‑Fi is off. Turn it on (you don\'t need to join any network) and Connect carries on by itself.</string>
     <string name="wifi_off_turn_on">Turn on Wi‑Fi</string>
     <string name="fuel_title">Petrol nearby</string>
     <string name="fuel_pill">⛽ Petrol nearby (95 price)</string>
@@ -32,7 +32,7 @@
     <string name="park_photo_button">📸 Park with photo</string>
     <string name="park_photo_no_camera">No camera app available</string>
     <string name="park_photo_saved">Parking spot saved with photo</string>
-    <string name="parked_options_title">Your bike</string>
+    <string name="parked_options_title">Your vehicle</string>
     <string name="parked_walk">🚶 Walk there</string>
     <string name="parked_view_photo">📷 See photo</string>
     <string name="parked_add_photo">📸 Add photo</string>
@@ -43,10 +43,10 @@
     <string name="whats_new_body">📲 1×1 «Connect» widget with your bike\'s photo and a status ring (idea by Luis Gil). One tap and it connects.\n\n🛡️ The Connect/Stop button locks for 3 s when it starts and fades, so you can\'t cancel by accident.\n\n🔋 «Bike battery» card: voltage and locked/unlocked, read only. Turn it on with your PKE code in Help → Battery. It shows «engine running» or «engine stopped» from the voltage.\n\n👥 Passenger mode: your pillion steers Android Auto, picks the destination and changes the music from their own phone.\n\n🏠 Home, Work and your next calendar appointments one tap away while connected. «I\'ll be there in X min» sends your arrival time.\n\n🧭 Choose Waze or Google Maps, and «➤ Go» on every search result and saved place.\n\n🏍️ «Which bike is it?»: pick your Zontes (125X, 125V, 368 G/K/E) and the app applies the screen setup we know works. The whole 368 range is now supported.\n\n⚡ Live speed on the home screen while you ride, and a sound when it connects or loses the bike.\n\n🎮 A handlebar remote just for Android Auto, while your intercom keeps the music (Controls).\n\n🎬 Trip videos: export in the background, «Best of the ride» in vertical, music, and ×4 in sync.\n\n📊 Sunday summary, current streak and route comparison: «4 min slower than usual».\n\n📦 Black box (experimental) with the crash detector, and backups without passwords or contacts.\n\n❤️ Thank you to the first supporters on Ko-fi: Francisco Javier S., José Antonio R., Raul and three anonymous supporters. You make this possible.</string>
     <string name="park_photo_need_camera">Allow the camera to take the parking photo</string>
     <string name="fit_open">🎯 Fit the screen to the dash (live)</string>
-    <string name="fit_open_hint">Arrows on the phone, result live on the bike. Connect first to see it on the dash.</string>
+    <string name="fit_open_hint">Arrows on the phone, result live on the vehicle. Connect first to see it on the dash.</string>
     <string name="fit_title">Fit to the dash</string>
-    <string name="fit_status_live">● Live: look at the bike\'s dash</string>
-    <string name="fit_status_offline">Not connected: you can adjust, but connect to the bike to see it live.</string>
+    <string name="fit_status_live">● Live: look at the vehicle\'s dash</string>
+    <string name="fit_status_offline">Not connected: you can adjust, but connect to the vehicle to see it live.</string>
     <string name="fit_how">The dash shows a yellow frame: that\'s where Android Auto is drawn. Move each edge with its arrows until the yellow line sits right on the visible edge of the screen, on all four sides. Hold an arrow to move faster.</string>
     <string name="fit_margins_now">Top %1$d · bottom %2$d · left %3$d · right %4$d px\nAndroid Auto area: %5$d × %6$d</string>
     <string name="fit_step_fine">Fine (2 px)</string>
@@ -59,7 +59,7 @@
     <string name="fit_shape_title">Panel shape for Android Auto</string>
     <string name="fit_shape_manual">Manual: %1$d × %2$d. Android Auto lays out its screen for this shape.</string>
     <string name="fit_shape_off">Off: Android Auto uses its standard shape.</string>
-    <string name="fit_shape_auto_is">Automatic: %1$d × %2$d (from your bike).</string>
+    <string name="fit_shape_auto_is">Automatic: %1$d × %2$d (from your vehicle).</string>
     <string name="fit_shape_auto_unknown">Automatic: not known yet (connect once).</string>
     <string name="fit_shape_from_frame">= yellow frame</string>
     <string name="fit_shape_save">Save size</string>
@@ -71,10 +71,10 @@
     <string name="fit_shape_reconnect_later">Later</string>
     <string name="fit_shape_saved_next">Saved: applied on the next connection</string>
     <string name="fit_undo">Undo</string>
-    <string name="fit_reset">Bike default</string>
+    <string name="fit_reset">Vehicle default</string>
     <string name="fit_done">Done</string>
     <string name="fit_more_options">Resolution, orientation and the old margin pages: back in Settings → Screen &amp; display ←</string>
-    <string name="bt_trigger_channel">Bike detected</string>
+    <string name="bt_trigger_channel">Vehicle detected</string>
     <string name="bt_trigger_title">%1$s is on</string>
     <string name="bt_trigger_text">Tap to connect to the dash</string>
     <string name="mic_perm_title">Microphone for voice commands</string>

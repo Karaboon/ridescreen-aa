@@ -15,13 +15,13 @@ import androidx.annotation.StringRes
 enum class Phase(@StringRes val labelRes: Int, val logLabel: String, val busy: Boolean) {
     IDLE(R.string.conn_ready, "Ready", false),
     STARTING_AA(R.string.conn_starting_aa, "Starting Android Auto…", true),
-    AA_VIDEO_LIVE(R.string.conn_aa_video_live, "Android Auto live — joining bike…", true),
-    JOINING_WIFI(R.string.conn_joining_wifi, "Connecting to bike Wi-Fi…", true),
+    AA_VIDEO_LIVE(R.string.conn_aa_video_live, "Android Auto live — joining vehicle…", true),
+    JOINING_WIFI(R.string.conn_joining_wifi, "Connecting to vehicle Wi-Fi…", true),
     PXC_CONNECTING(R.string.conn_pxc_connecting, "Linking to dashboard…", true),
     STREAMING(R.string.conn_streaming, "Connected — projecting to dash", false),
     MIRRORING(R.string.conn_mirroring, "Mirroring screen to dash", false),
     RECONNECTING(R.string.conn_reconnecting, "Link dropped — reconnecting…", true),
-    WAITING_FOR_BIKE(R.string.conn_waiting_for_bike, "Bike out of range — waiting…", true),
+    WAITING_FOR_BIKE(R.string.conn_waiting_for_bike, "Vehicle out of range — waiting…", true),
     STOPPED(R.string.conn_stopped, "Stopped", false),
     ERROR(R.string.conn_error, "Error — see logs", false),
 }

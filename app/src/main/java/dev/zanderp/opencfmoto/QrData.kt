@@ -255,7 +255,7 @@ data class QrData(
                     return "Moto Morini QR has no Wifi= field — open the phone-link / MotoFun QR on the dash"
                 Regex("""(?i)^code:.*engine:.*vin:""").containsMatchIn(t) ||
                     t.contains("color:", ignoreCase = true) && t.contains("vin:", ignoreCase = true) ->
-                    return "that QR is bike info (color/VIN), not Wi‑Fi pairing — open MotoPlay / EasyConnect / MotoFun QR"
+                    return "that QR is vehicle info (color/VIN), not Wi‑Fi pairing — open MotoPlay / EasyConnect / MotoFun QR"
                 t.contains("carbit.com", ignoreCase = true) &&
                     t.contains("downsdk", ignoreCase = true) ->
                     return "that is the Carbit app-download QR, not pairing — open MotoPlay / EasyConnect so the Wi-Fi QR (SSID + password) stays on screen"

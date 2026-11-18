@@ -157,9 +157,6 @@ Oggi: %2$d min porta a porta · di solito: %3$d min.</string>
     <string name="telemetry_notice_ok">OK</string>
     <string name="telemetry_notice_off">Disattiva</string>
     <string name="telemetry_notice_off_done">Rapporti anonimi disattivati</string>
-    <string name="bike_picker_title">Che moto è?</string>
-    <string name="bike_picker_other">Un\'altra moto (configurazione automatica)</string>
-    <string name="bike_picker_menu">Modello di moto…</string>
     <string name="stat_speed_now">adesso</string>
     <string name="remote_service_label">RideScreen AA · telecomando al manubrio</string>
     <string name="remote_service_summary">Permette al telecomando al manubrio che hai scelto di controllare Android Auto sul cruscotto.</string>

@@ -560,7 +560,7 @@ object OfflineRouter {
         }
         LogBus.log(
             "[route] online failed — beeline fallback (~${approxKm.toInt()}km) uplink=$pin " +
-                "(enable mobile data while projecting — bike Wi‑Fi has no internet)",
+                "(enable mobile data while projecting — vehicle Wi‑Fi has no internet)",
         )
         return listOf(beeline(fromLat, fromLon, toLat, toLon).withLabel(forceLabel ?: "Direct"))
     }

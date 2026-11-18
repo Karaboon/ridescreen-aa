@@ -100,9 +100,9 @@ object SettingsBackup {
         val hint = root.optJSONObject("bikeHint")
         val profile = hint?.optString("profile")?.takeIf { it.isNotBlank() && it != "null" }
             ?: hint?.optString("profileOverride")?.takeIf { it.isNotBlank() && it != "null" }
-        val onto = BikeMemory.lastBikeName(context) ?: "selected bike"
-        val msg = if (profile != null) "Imported bike tuning ($profile) onto $onto"
-        else "Bike tuning imported onto $onto"
+        val onto = BikeMemory.lastBikeName(context) ?: "selected vehicle"
+        val msg = if (profile != null) "Imported vehicle tuning ($profile) onto $onto"
+        else "Vehicle tuning imported onto $onto"
         return Result(true, msg)
     }
 

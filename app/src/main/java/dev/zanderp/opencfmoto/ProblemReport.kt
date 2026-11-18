@@ -35,7 +35,7 @@ object ProblemReport {
             appendLine("### What went wrong")
             appendLine(problem.trim())
             appendLine()
-            appendLine("### Bike")
+            appendLine("### Vehicle")
             appendLine(bikeLine(model, year))
             appendLine()
             appendLine("### Setup")

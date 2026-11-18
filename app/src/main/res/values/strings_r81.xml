@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- Bike switched off for a long time: stop waiting (battery). -->
-    <string name="bike_gone_channel">Bike not found</string>
-    <string name="bike_gone_title">Stopped waiting for the bike</string>
-    <string name="bike_gone_text">The bike was off for 20 minutes, so the app stopped looking for it to save battery. Tap Connect when you\'re back on the bike.</string>
+    <string name="bike_gone_channel">Vehicle not found</string>
+    <string name="bike_gone_title">Stopped waiting for the vehicle</string>
+    <string name="bike_gone_text">The vehicle was off for 20 minutes, so the app stopped looking for it to save battery. Tap Connect when you\'re back.</string>
 
     <!-- Trophies -->
     <string name="tr_channel">Trophies</string>

@@ -110,7 +110,7 @@ class GpxActivity : AppCompatActivity() {
         corridorBtn.isEnabled = track.points.isNotEmpty()
         offlineTrackBtn.isEnabled = track.points.isNotEmpty() && !offlineBusy
         corridorPois = emptyList()
-        progressLabel.text = "GPX ready — Open on map, or Project to bike when connected."
+        progressLabel.text = "GPX ready — Open on map, or Project to vehicle when connected."
         progressBar.isVisible = false
         MapPlaces.pushHistory(
             this,

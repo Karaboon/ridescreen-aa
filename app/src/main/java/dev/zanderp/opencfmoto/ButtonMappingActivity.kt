@@ -297,7 +297,7 @@ class ButtonMappingActivity : AppCompatActivity() {
                 val preset = presets[which]
                 MaterialAlertDialogBuilder(this)
                     .setTitle(preset.title)
-                    .setMessage(preset.summary + "\n\nReplace the current mapping for this bike? Saved places are kept.")
+                    .setMessage(preset.summary + "\n\nReplace the current mapping for this vehicle? Saved places are kept.")
                     .setPositiveButton("Apply") { _, _ ->
                         preset.apply(this)
                         LogBus.log("→ button mapping preset: ${preset.title}")
@@ -322,7 +322,7 @@ class ButtonMappingActivity : AppCompatActivity() {
             .setTitle("Clear cluster preset?")
             .setMessage(
                 "Removes the active cluster tag and restores shipped gesture defaults. " +
-                    "Saved places stay. Some bikes work fine with no preset — just tweak rows below if needed."
+                    "Saved places stay. Some vehicles work fine with no preset — just tweak rows below if needed."
             )
             .setPositiveButton("Clear") { _, _ ->
                 ButtonClusterPreset.clear(this)

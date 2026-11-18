@@ -301,7 +301,7 @@ class HudViewActivity : AppCompatActivity() {
             val now = System.currentTimeMillis()
             if (now - noSessionToastAt > 3000) {
                 noSessionToastAt = now
-                Toast.makeText(this, "Connect to the bike first", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Connect to the vehicle first", Toast.LENGTH_SHORT).show()
             }
             return
         }
@@ -356,12 +356,12 @@ class HudViewActivity : AppCompatActivity() {
 
     private fun key(code: Int) {
         if (gpxPreview) {
-            Toast.makeText(this, "AA controls need a bike connection", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "AA controls need a vehicle connection", Toast.LENGTH_SHORT).show()
             return
         }
         val sink = AaVideoBridge.keySink
         if (sink == null) {
-            Toast.makeText(this, "Connect to the bike first", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Connect to the vehicle first", Toast.LENGTH_SHORT).show()
         } else {
             sink(code)
         }
@@ -369,12 +369,12 @@ class HudViewActivity : AppCompatActivity() {
 
     private fun scroll(delta: Int) {
         if (gpxPreview) {
-            Toast.makeText(this, "AA controls need a bike connection", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "AA controls need a vehicle connection", Toast.LENGTH_SHORT).show()
             return
         }
         val sink = AaVideoBridge.scrollSink
         if (sink == null) {
-            Toast.makeText(this, "Connect to the bike first", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Connect to the vehicle first", Toast.LENGTH_SHORT).show()
         } else {
             sink(delta)
         }

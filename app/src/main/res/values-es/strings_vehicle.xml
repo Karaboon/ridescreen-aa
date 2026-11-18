@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vehicle_name_title">Ponle nombre a tu vehículo</string>
+    <string name="vehicle_name_message">Primera conexión. Dale un nombre para reconocerlo en el garaje (puedes cambiarlo después).</string>
+    <string name="vehicle_name_hint">Nombre del vehículo (p. ej. Mi coche, Zontes 125X)</string>
+    <string name="vehicle_name_save">Guardar</string>
+    <string name="vehicle_name_skip">Omitir</string>
+
+    <string name="garage_use_vehicle">Usar este vehículo</string>
+    <string name="garage_selected">%1$s seleccionado</string>
+    <string name="garage_added">%1$s añadido</string>
+    <string name="garage_rename">Cambiar nombre</string>
+    <string name="garage_rename_title">Cambiar nombre del vehículo</string>
+    <string name="garage_add_photo">Añadir foto</string>
+    <string name="garage_change_photo">Cambiar foto</string>
+    <string name="garage_remove_photo">Quitar foto</string>
+    <string name="garage_remove_vehicle">Quitar vehículo</string>
+    <string name="garage_remove_title">¿Quitar %1$s?</string>
+    <string name="garage_remove_message">Se olvidan su emparejamiento, su foto y sus ajustes. Puedes volver a escanear el QR del tablero o introducir el Wi‑Fi más adelante.</string>
+    <string name="garage_remove">Quitar</string>
+    <string name="garage_photo_failed">No se pudo leer esa imagen</string>
+    <string name="garage_active_vehicle">Vehículo activo · toca para editar</string>
+    <string name="garage_tap_to_select">toca para elegir o editar</string>
+</resources>

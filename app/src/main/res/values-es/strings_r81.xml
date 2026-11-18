@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="bike_gone_channel">Moto no encontrada</string>
-    <string name="bike_gone_title">He dejado de esperar a la moto</string>
-    <string name="bike_gone_text">La moto llevaba 20 minutos apagada y la app ha dejado de buscarla para ahorrar batería. Pulsa Conectar cuando vuelvas a la moto.</string>
+    <string name="bike_gone_channel">Vehículo no encontrado</string>
+    <string name="bike_gone_title">He dejado de esperar al vehículo</string>
+    <string name="bike_gone_text">El vehículo llevaba 20 minutos apagado y la app ha dejado de buscarlo para ahorrar batería. Pulsa Conectar cuando vuelvas.</string>
 
     <string name="tr_channel">Trofeos</string>
     <string name="tr_unlocked_title">🏆 ¡Trofeo desbloqueado!</string>

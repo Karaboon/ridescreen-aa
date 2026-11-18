@@ -11,7 +11,7 @@ import androidx.annotation.StringRes
  * pins that profile for the selected garage bike (via [BikeScope]).
  */
 enum class ProfileOverride(val id: String, val shortLabel: String, val detail: String, @StringRes val detailRes: Int) {
-    AUTO("auto", "Auto", "Detect from the bike (recommended)", R.string.pref_profile_auto),
+    AUTO("auto", "Auto", "Detect from the vehicle (recommended)", R.string.pref_profile_auto),
     LEGACY("legacy", "Legacy", "CFDL16 / 450SR-style non-touch", R.string.pref_profile_legacy),
     NK800("nk800", "800NK", "CRCP / sdk 0.9.23.x non-touch", R.string.pref_profile_nk800),
     NK_ADV("nk_adv", "800NK Adv", "CFDL26 touch 720×712", R.string.pref_profile_nk_adv),

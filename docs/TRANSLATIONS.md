@@ -21,6 +21,7 @@ Draft locales ship for Discord community languages:
 | `values-tr/` | Türkçe |
 | `values-ko/` | 한국어 |
 | `values-bg/` | Български (sashop2001) |
+| `values-th/` | ไทย (main screen, connection, garage, QR scan; the rest falls back to English) |
 
 ## How to improve a translation
 

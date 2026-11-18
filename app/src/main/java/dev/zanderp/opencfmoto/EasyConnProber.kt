@@ -219,7 +219,7 @@ class EasyConnProber(
             if (BikeWifi.isVpnBindBlocked(context, bindErr)) {
                 log("!! VPN kill-switch is blocking bike Wi-Fi (EPERM on Network.bindSocket). " +
                     "Disable Always-on VPN → 'Block connections without VPN', allow LAN, or turn the VPN off.")
-                ConnectionState.set(Phase.ERROR, "VPN kill-switch blocking bike Wi‑Fi")
+                ConnectionState.set(Phase.ERROR, "VPN kill-switch blocking vehicle Wi‑Fi")
                 stop()
                 return
             }
@@ -467,7 +467,7 @@ class EasyConnProber(
             val bindErr = BikeWifi.testBikeSocketBind(context)
             if (BikeWifi.isVpnBindBlocked(context, bindErr)) {
                 log("!! VPN kill-switch blocked bike bind after probe failure: ${bindErr?.message}")
-                ConnectionState.set(Phase.ERROR, "VPN kill-switch blocking bike Wi‑Fi")
+                ConnectionState.set(Phase.ERROR, "VPN kill-switch blocking vehicle Wi‑Fi")
             } else if (BikeWifi.isVpnActive(context)) {
                 log("!! probe never reached the bike; an internet VPN is also active " +
                     "(${BikeWifi.vpnNetworksSummary(context)}). If this keeps happening, turn the VPN " +
@@ -566,7 +566,7 @@ class EasyConnProber(
                 if (everConnected) {
                     log("!! ignoring VPN bind blip — bike already linked this session; will retry")
                 } else {
-                    ConnectionState.set(Phase.ERROR, "VPN kill-switch blocking bike Wi‑Fi")
+                    ConnectionState.set(Phase.ERROR, "VPN kill-switch blocking vehicle Wi‑Fi")
                     return
                 }
             } catch (e: Exception) {
@@ -684,7 +684,7 @@ class EasyConnProber(
         }
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
             log("[reconnect] gave up after $reconnectAttempts attempts — tap Connect to retry")
-            ConnectionState.set(Phase.ERROR, "lost bike link")
+            ConnectionState.set(Phase.ERROR, "lost vehicle link")
             return
         }
         reprobing = true
