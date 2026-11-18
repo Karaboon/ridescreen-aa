@@ -28,9 +28,19 @@ object DashMemory {
         return if (p.contains(KEY_LAST_TOUCH)) p.getBoolean(KEY_LAST_TOUCH, false) else null
     }
 
+    /**
+     * A RideScreen virtual dash is keyed by its device id, not its SSID: on Android 6–9 its Wi‑Fi
+     * Direct name can change after a restart, and an SSID key then forgets the panel size, so the
+     * first connect fits AA to the profile's guess (height squeezed) and only the second is right.
+     */
+    private fun virtualKey(ctx: Context, ssid: String): String? =
+        BikeMemory.devices(ctx).firstNotNullOfOrNull { b ->
+            b.qr?.takeIf { it.ssid == ssid }?.let(BikeMemory::virtualDashId)
+        }?.let { KEY_PREFIX + "v" + it }
+
     fun observe(ctx: Context, ssid: String?, w: Int, h: Int) {
         if (ssid.isNullOrBlank() || w <= 0 || h <= 0) return
-        val key = KEY_PREFIX + ssid
+        val key = virtualKey(ctx, ssid) ?: (KEY_PREFIX + ssid)
         val now = "${w}x$h"
         val prior = prefs(ctx).getString(key, null)
         prefs(ctx).edit().putString(key, now).apply()
@@ -44,7 +54,9 @@ object DashMemory {
 
     fun get(ctx: Context, ssid: String?): Pair<Int, Int>? {
         if (ssid.isNullOrBlank()) return null
-        val v = prefs(ctx).getString(KEY_PREFIX + ssid, null) ?: return null
+        val p = prefs(ctx)
+        val v = virtualKey(ctx, ssid)?.let { p.getString(it, null) }
+            ?: p.getString(KEY_PREFIX + ssid, null) ?: return null
         val parts = v.split("x")
         val w = parts.getOrNull(0)?.toIntOrNull() ?: return null
         val h = parts.getOrNull(1)?.toIntOrNull() ?: return null
